@@ -1,6 +1,6 @@
 services:
   app:
-    image: tonermanager:latest
+    image: tonermanagerv2-tonermanager:latest
     restart: unless-stopped
     environment:
       PORT: 3000
@@ -13,23 +13,6 @@ services:
       - ./data:/app/data
     expose:
       - "3000"
-
-  caddy:
-    image: caddy:2
-    restart: unless-stopped
-    depends_on:
-      - app
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      DOMAIN: ${DOMAIN}
-      EMAIL: ${EMAIL}
-      ENABLE_HTTPS: ${ENABLE_HTTPS}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
 
 volumes:
   caddy_data:
