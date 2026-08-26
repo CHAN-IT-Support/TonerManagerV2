@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 
 export default function Admin() {
   const queryClient = useQueryClient();
-  const { t, languages } = useI18n();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('settings');
   const [selectedCell, setSelectedCell] = useState(null);
   
@@ -564,25 +564,6 @@ export default function Admin() {
                 </div>
                 <div className="text-xs text-slate-500">
                   {t('admin.settingsAuthDefault')}
-                </div>
-                <div className="pt-4 border-t border-slate-200">
-                  <div className="font-medium text-slate-800 mb-2">{t('admin.settingsLangLabel')}</div>
-                  <Select
-                    value={settings?.default_language || 'de'}
-                    onValueChange={(value) => updateSettingsMutation.mutate({ default_language: value })}
-                  >
-                    <SelectTrigger className="max-w-xs">
-                      <SelectValue placeholder={t('common.select')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languages.map((lang) => (
-                        <SelectItem key={lang.code} value={lang.code}>
-                          <span className="mr-2">{lang.flag}</span>
-                          {lang.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
               </CardContent>
             </Card>

@@ -553,8 +553,6 @@ const migrate = () => {
 
   db.prepare('INSERT OR IGNORE INTO app_settings (key, value) VALUES (?, ?)')
     .run('require_auth_for_stock', JSON.stringify(false));
-  db.prepare('INSERT OR IGNORE INTO app_settings (key, value) VALUES (?, ?)')
-    .run('default_language', JSON.stringify('de'));
 
   seedIfEmpty();
 
@@ -600,29 +598,22 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/public-settings', (req, res) => {
-  res.json({
-    default_language: String(getSetting('default_language', 'de'))
-  });
+  res.json({});
 });
 
 app.get('/api/settings', requireAdmin, (req, res) => {
   res.json({
-    require_auth_for_stock: Boolean(getSetting('require_auth_for_stock', false)),
-    default_language: String(getSetting('default_language', 'de'))
+    require_auth_for_stock: Boolean(getSetting('require_auth_for_stock', false))
   });
 });
 
 app.put('/api/settings', requireAdmin, (req, res) => {
-  const { require_auth_for_stock, default_language } = req.body || {};
+  const { require_auth_for_stock } = req.body || {};
   if (typeof require_auth_for_stock !== 'undefined') {
     setSetting('require_auth_for_stock', Boolean(require_auth_for_stock));
   }
-  if (typeof default_language !== 'undefined') {
-    setSetting('default_language', String(default_language));
-  }
   res.json({
-    require_auth_for_stock: Boolean(getSetting('require_auth_for_stock', false)),
-    default_language: String(getSetting('default_language', 'de'))
+    require_auth_for_stock: Boolean(getSetting('require_auth_for_stock', false))
   });
 });
 

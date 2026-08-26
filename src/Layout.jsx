@@ -6,11 +6,10 @@ import { useI18n } from '@/lib/i18n';
 import { Package, Menu, X, Archive, Printer, LogIn, LogOut, Warehouse, ListChecks } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
 export default function Layout({ children, currentPageName }) {
   const { user, isAuthenticated, logout } = useAuth();
-  const { t, language, setLanguage, languages } = useI18n();
+  const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(true);
 
   const isAdmin = user?.role === 'admin';
@@ -40,21 +39,6 @@ export default function Layout({ children, currentPageName }) {
         </button>
       )}
 
-      <div className="fixed top-4 right-4 z-50 print-hide hidden md:block">
-        <Select value={language} onValueChange={setLanguage}>
-          <SelectTrigger className="w-9 h-9 rounded-full bg-transparent border-transparent shadow-none p-0 flex items-center justify-center hover:bg-slate-100/60">
-            <span className="text-lg">{languages.find((lang) => lang.code === language)?.flag}</span>
-          </SelectTrigger>
-          <SelectContent>
-            {languages.map((lang) => (
-              <SelectItem key={lang.code} value={lang.code}>
-                <span className="mr-2">{lang.flag}</span>
-                {lang.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
       {/* Bottom Navigation für Mobile */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 md:hidden">
         <div className="flex justify-around items-center h-16 px-4">
