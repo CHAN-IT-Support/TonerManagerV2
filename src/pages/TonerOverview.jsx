@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ListChecks, Loader2, Printer } from 'lucide-react';
+import { ListChecks, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ShelfGrid from '@/components/shelf/ShelfGrid';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function TonerOverview() {
   const queryClient = useQueryClient();
-  const { t, language, setLanguage, languages } = useI18n();
+  const { t } = useI18n();
   const [selectedToner, setSelectedToner] = useState(null);
   const [action, setAction] = useState(null);
   const [search, setSearch] = useState('');
@@ -173,27 +173,6 @@ export default function TonerOverview() {
                 <p className="text-slate-500">{t('tonerOverview.subtitle')}</p>
               </div>
             </div>
-          <div className="print-hide flex items-center gap-2">
-            <div className="md:hidden">
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="w-9 h-9 rounded-full bg-transparent border-transparent shadow-none p-0 flex items-center justify-center hover:bg-slate-100/60">
-                  <span className="text-lg">{languages.find((lang) => lang.code === language)?.flag}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map((lang) => (
-                    <SelectItem key={lang.code} value={lang.code}>
-                      <span className="mr-2">{lang.flag}</span>
-                      {lang.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => window.print()}>
-              <Printer className="w-4 h-4 mr-2" />
-              {t('common.print')}
-            </Button>
-          </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden print-area">
