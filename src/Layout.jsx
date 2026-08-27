@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { useAuth } from '@/lib/AuthContext';
 import { useI18n } from '@/lib/i18n';
-import { Package, Menu, X, Archive, Printer, LogIn, LogOut, Warehouse, ListChecks } from 'lucide-react';
+import { Package, Menu, X, Archive, Printer, LogIn, LogOut, Warehouse } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -22,7 +22,7 @@ export default function Layout({ children, currentPageName }) {
   const navItems = [
         { name: 'Home', icon: Package, label: t('layout.navTonerFind'), show: true },
         { name: 'Cabinets', icon: Warehouse, label: t('layout.navCabinets'), show: true },
-        { name: 'TonerOverview', icon: ListChecks, label: t('layout.navTonerOverview'), show: true },
+        // { name: 'TonerOverview', icon: ListChecks, label: t('layout.navTonerOverview'), show: true },
         { name: 'Admin', icon: Archive, label: t('layout.navAdmin'), show: isAdmin }
       ];
 
