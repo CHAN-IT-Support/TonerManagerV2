@@ -105,6 +105,7 @@ export default function Login() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               disabled={stage === 'password'}
+              autoFocus={stage === 'email'}
             />
             {stage === 'password' && (
               <Input
@@ -112,6 +113,7 @@ export default function Login() {
                 placeholder={t('auth.password')}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
+                autoFocus
               />
             )}
             {error && (
