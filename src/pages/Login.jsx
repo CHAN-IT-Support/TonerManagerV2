@@ -36,6 +36,45 @@ export default function Login() {
     return `${trimmed}@local`;
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const value = email.trim();
+
+    if (stage === 'email') {
+      if (!value) {
+        setError(t('auth.emailOrUser'));
+        return;
+      }
+
+      setError(null);
+      if (isLocalLogin(value)) {
+        setStage('password');
+        return;
+      }
+
+      setIsSubmitting(true);
+      try {
+        await login({ email: value, mode: 'entra' });
+      } catch (err) {
+        setError(err.message || t('auth.loginFailed'));
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    setError(null);
+    try {
+      await login({
+        email: normalizeLocalEmail(email),
+        password,
+        mode: 'local'
+      });
+    } catch (err) {
+      setError(err.message || t('auth.loginFailed'));
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate(returnTo, { replace: true });
@@ -54,7 +93,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
       <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm max-w-md w-full text-center space-y-4">
         <h2 className="text-xl font-semibold text-slate-800">{t('common.login')}</h2>
-        <div className="space-y-3 text-left">
+          <form className="space-y-3 text-left" onSubmit={handleSubmit}>
           <p className="text-slate-600 text-center">
             {t('auth.enterEmail')}
           </p>
@@ -81,26 +120,7 @@ export default function Login() {
             )}
             {stage === 'email' ? (
               <Button
-                onClick={async () => {
-                  const value = email.trim();
-                  if (!value) {
-                    setError(t('auth.emailOrUser'));
-                    return;
-                  }
-                  setError(null);
-                  if (isLocalLogin(value)) {
-                    setStage('password');
-                    return;
-                  }
-                  setIsSubmitting(true);
-                  try {
-                    await login({ email: value, mode: 'entra' });
-                  } catch (err) {
-                    setError(err.message || t('auth.loginFailed'));
-                  } finally {
-                    setIsSubmitting(false);
-                  }
-                }}
+                type="submit"
                 className="w-full"
                 disabled={isSubmitting}
               >
@@ -110,6 +130,7 @@ export default function Login() {
               <div className="flex gap-2">
                 <Button
                   variant="outline"
+                  type="button"
                   onClick={() => {
                     setStage('email');
                     setPassword('');
@@ -120,18 +141,7 @@ export default function Login() {
                   {t('auth.back')}
                 </Button>
                 <Button
-                  onClick={async () => {
-                    setError(null);
-                    try {
-                      await login({
-                        email: normalizeLocalEmail(email),
-                        password,
-                        mode: 'local'
-                      });
-                    } catch (err) {
-                      setError(err.message || t('auth.loginFailed'));
-                    }
-                  }}
+                  type="submit"
                   className="flex-1"
                   disabled={!password}
                 >
@@ -139,7 +149,7 @@ export default function Login() {
                 </Button>
               </div>
             )}
-          </div>
+          </form>
         </div>
       </div>
     </div>

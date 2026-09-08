@@ -14,6 +14,8 @@ const de = {
     underMin: 'Unter Minimum',
     all: 'Alle',
     pieces: 'Stück',
+    decrease: 'verringern',
+    increase: 'erhöhen',
     cancel: 'Abbrechen',
     confirm: 'Bestätigen',
     save: 'Speichern',

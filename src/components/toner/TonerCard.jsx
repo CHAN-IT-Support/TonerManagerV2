@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, Trash2 } from 'lucide-react';
+import { Minus, Package, MapPin, Plus, Trash2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useI18n } from '@/lib/i18n';
 
@@ -11,7 +11,8 @@ export default function TonerCard({
   activePosition,
   isHighlighted,
   onSelect,
-  onPositionSelect
+  onPositionSelect,
+  onStockChange
 }) {
   const { t } = useI18n();
   const getTonerColor = () => {
@@ -99,9 +100,37 @@ export default function TonerCard({
 
       {toner.stock !== undefined && (
         <div className={cn("mt-4 pt-4 border-t border-white/20", getTextColor())}>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4">
             <span className="text-sm opacity-80">{t('common.stock')}</span>
-            <span className="text-xl font-bold">{toner.stock} {t('common.pieces')}</span>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                aria-label={`${t('common.stock')} ${t('common.decrease') || 'verringern'}`}
+                disabled={toner.stock <= 0 || !onStockChange}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onStockChange?.(Math.max(0, toner.stock - 1));
+                }}
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 text-current transition hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Minus className="h-5 w-5" />
+              </button>
+              <span className="min-w-16 text-center text-xl font-bold">
+                {toner.stock} {t('common.pieces')}
+              </span>
+              <button
+                type="button"
+                aria-label={`${t('common.stock')} ${t('common.increase') || 'erhöhen'}`}
+                disabled={!onStockChange}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onStockChange?.(toner.stock + 1);
+                }}
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 text-current transition hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Plus className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       )}
