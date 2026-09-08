@@ -10,9 +10,11 @@ import TonerCard from '@/components/toner/TonerCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from '@/lib/i18n';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function Home() {
   const { t } = useI18n();
+  const { isAuthenticated } = useAuth();
   const [selectedPrinter, setSelectedPrinter] = useState(null);
   const [searchValue, setSearchValue] = useState('');
   const [selectedCell, setSelectedCell] = useState(null);
@@ -136,7 +138,9 @@ export default function Home() {
     return map;
   }, [cabinets]);
 
-  const highlightTonerIds = activePosition ? [] : (activeTonerId ? [activeTonerId] : []);
+  const highlightTonerIds = activePosition
+    ? []
+    : (activeTonerId ? [activeTonerId] : selectedToners.map((toner) => toner.id));
   const visibleCabinets = selectedPrinter?.location_id
     ? cabinets.filter((cabinet) => cabinet.location_id === selectedPrinter.location_id)
     : cabinets;
@@ -247,7 +251,9 @@ export default function Home() {
                             cabinetNameById={cabinetNameById}
                             activePosition={activePosition}
                             isHighlighted={isActive}
-                            onStockChange={(stock) => updateTonerStock.mutate({ id: toner.id, stock })}
+                            onStockChange={isAuthenticated
+                              ? (stock) => updateTonerStock.mutate({ id: toner.id, stock })
+                              : undefined}
                             onSelect={() => {
                               setActiveTonerId(toner.id);
                               setActivePosition(null);
@@ -283,8 +289,8 @@ export default function Home() {
                             cabinetName={locationNameById.get(cabinet.location_id)
                               ? `${locationNameById.get(cabinet.location_id)} • ${cabinet.name}`
                               : cabinet.name}
-                            editable
-                            onCellClick={(row, column, position) => {
+                            editable={isAuthenticated}
+                            onCellClick={isAuthenticated ? (row, column, position) => {
                               setSelectedCell({
                                 row,
                                 column,
@@ -292,7 +298,7 @@ export default function Home() {
                                 cabinet_id: cabinet.id
                               });
                               setSelectedTonerId(position?.toner_id || '');
-                            }}
+                            } : undefined}
                           />
                         </div>
                       ))}

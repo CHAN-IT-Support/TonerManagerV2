@@ -7,11 +7,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from '@/lib/i18n';
+import { useAuth } from '@/lib/AuthContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function TonerOverview() {
   const queryClient = useQueryClient();
   const { t } = useI18n();
+  const { isAuthenticated } = useAuth();
   const [selectedToner, setSelectedToner] = useState(null);
   const [action, setAction] = useState(null);
   const [search, setSearch] = useState('');
@@ -269,11 +271,11 @@ export default function TonerOverview() {
                     return (
                     <tr
                       key={toner.id}
-                      onClick={() => {
+                      onClick={isAuthenticated ? () => {
                         setSelectedToner(toner);
                         setAction(null);
-                      }}
-                      className="text-sm text-slate-700 border-b last:border-b-0 border-slate-100 hover:bg-slate-50 cursor-pointer"
+                      } : undefined}
+                      className={`text-sm text-slate-700 border-b last:border-b-0 border-slate-100 hover:bg-slate-50 ${isAuthenticated ? 'cursor-pointer' : ''}`}
                     >
                       <td className="px-4 py-3 font-medium text-slate-800 truncate">{toner.model || '-'}</td>
                       <td className="px-4 py-3 truncate">{toner.name || '-'}</td>
@@ -332,9 +334,9 @@ export default function TonerOverview() {
                       positions={positionsByCabinet.get(cabinet.id) || []}
                       toners={toners}
                       cabinetName={cabinet.name}
-                      editable
+                      editable={isAuthenticated}
                       highlightTonerId={action === 'remove' ? selectedToner?.id : undefined}
-                      onCellClick={(row, column, position) => {
+                      onCellClick={isAuthenticated ? (row, column, position) => {
                         if (!selectedToner) return;
                         if (action === 'place') {
                           if (position?.toner_id) return;
@@ -352,7 +354,7 @@ export default function TonerOverview() {
                           if (position?.toner_id !== selectedToner.id) return;
                           setPendingRemove({ cabinet, row, column });
                         }
-                      }}
+                      } : undefined}
                     />
                   </div>
                 ))}

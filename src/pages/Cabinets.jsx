@@ -7,9 +7,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useI18n } from '@/lib/i18n';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function Cabinets() {
   const { t } = useI18n();
+  const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [selectedCell, setSelectedCell] = useState(null);
   const [selectedTonerId, setSelectedTonerId] = useState('');
@@ -99,8 +101,8 @@ export default function Cabinets() {
                   cabinetName={locationNameById.get(cabinet.location_id)
                     ? `${locationNameById.get(cabinet.location_id)} • ${cabinet.name}`
                     : cabinet.name}
-                editable
-                onCellClick={(row, column, position) => {
+                editable={isAuthenticated}
+                onCellClick={isAuthenticated ? (row, column, position) => {
                   setSelectedCell({
                     row,
                     column,
@@ -108,7 +110,7 @@ export default function Cabinets() {
                     cabinet_id: cabinet.id
                   });
                   setSelectedTonerId(position?.toner_id || '');
-                }}
+                } : undefined}
               />
               </div>
             ))

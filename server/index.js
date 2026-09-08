@@ -26,9 +26,6 @@ const setSetting = (key, value) => {
     .run(key, JSON.stringify(value));
 };
 
-const isAuthRequiredForStock = () => {
-  return Boolean(getSetting('require_auth_for_stock', false));
-};
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 
@@ -868,7 +865,7 @@ app.get('/api/:entity', (req, res) => {
 app.post('/api/:entity', (req, res, next) => {
   const entity = req.params.entity;
   if (entity === 'shelf-positions') {
-    return isAuthRequiredForStock() ? requireAuth(req, res, next) : next();
+    return requireAuth(req, res, next);
   }
   return requireAdmin(req, res, next);
 }, (req, res) => {
@@ -890,13 +887,13 @@ app.post('/api/:entity', (req, res, next) => {
 app.put('/api/:entity/:id', (req, res, next) => {
   const entity = req.params.entity;
   if (entity === 'shelf-positions') {
-    return isAuthRequiredForStock() ? requireAuth(req, res, next) : next();
+    return requireAuth(req, res, next);
   }
   if (entity === 'toners') {
     const keys = Object.keys(req.body || {});
     const onlyStock = keys.length > 0 && keys.every((key) => key === 'stock');
     if (onlyStock) {
-      return isAuthRequiredForStock() ? requireAuth(req, res, next) : next();
+      return requireAuth(req, res, next);
     }
   }
   return requireAdmin(req, res, next);
@@ -939,7 +936,7 @@ const cleanupTonerReferences = (tonerId) => {
 app.delete('/api/:entity/:id', (req, res, next) => {
   const entity = req.params.entity;
   if (entity === 'shelf-positions') {
-    return isAuthRequiredForStock() ? requireAuth(req, res, next) : next();
+    return requireAuth(req, res, next);
   }
   return requireAdmin(req, res, next);
 }, (req, res) => {

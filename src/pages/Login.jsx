@@ -100,7 +100,7 @@ export default function Login() {
           </p>
           <div className="space-y-2">
             <Input
-              type="email"
+              type="text"
               placeholder={t('auth.emailOrUser')}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
