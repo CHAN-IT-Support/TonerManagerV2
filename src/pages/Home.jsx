@@ -121,6 +121,36 @@ export default function Home() {
     }
   });
 
+  const expandPositionMutation = useMutation({
+    mutationFn: ({ cabinet_id, group, direction, toner_id }) => {
+      const cells = direction === 'right'
+        ? Array.from({ length: group.rowSpan }, (_, offset) => ({ row: group.row + offset, column: group.column + group.columnSpan }))
+        : Array.from({ length: group.columnSpan }, (_, offset) => ({ row: group.row - 1, column: group.column + offset }));
+      return Promise.all(cells.map(({ row, column }) => (
+        base44.entities.ShelfPosition.create({ cabinet_id, row, column, toner_id })
+      )));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['positions'] })
+  });
+
+  const removePositionGroupMutation = useMutation({
+    mutationFn: ({ cabinet_id, group }) => {
+      const cells = group
+        ? Array.from({ length: group.rowSpan }, (_, rowOffset) =>
+          Array.from({ length: group.columnSpan }, (_, columnOffset) => ({
+            row: group.row + rowOffset,
+            column: group.column + columnOffset
+          }))
+        ).flat()
+        : [];
+      return Promise.all(cells.map(({ row, column }) => {
+        const position = positions.find(p => p.cabinet_id === cabinet_id && p.row === row && p.column === column);
+        return position ? base44.entities.ShelfPosition.delete(position.id) : null;
+      }));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['positions'] })
+  });
+
   const selectedToners = selectedPrinter ? getTonersForPrinter(selectedPrinter) : [];
 
   const positionsByToner = useMemo(() => {
@@ -288,11 +318,18 @@ export default function Home() {
                               ? `${locationNameById.get(cabinet.location_id)} • ${cabinet.name}`
                               : cabinet.name}
                             editable={isAuthenticated}
-                            onCellClick={isAuthenticated ? (row, column, position) => {
+                            onExpand={isAuthenticated ? (group, direction, toner) => expandPositionMutation.mutate({
+                              cabinet_id: cabinet.id,
+                              group,
+                              direction,
+                              toner_id: toner.id
+                            }) : undefined}
+                            onCellClick={isAuthenticated ? (row, column, position, group) => {
                               setSelectedCell({
                                 row,
                                 column,
                                 position,
+                                group,
                                 cabinet_id: cabinet.id
                               });
                               setSelectedTonerId(position?.toner_id || '');
@@ -372,11 +409,9 @@ export default function Home() {
               <Button
                 onClick={() => {
                   const toner = toners.find(t => t.id === selectedCell.position.toner_id);
-                  updatePositionMutation.mutate({
+                  removePositionGroupMutation.mutate({
                     cabinet_id: selectedCell.cabinet_id,
-                    row: selectedCell.row,
-                    column: selectedCell.column,
-                    toner_id: null
+                    group: selectedCell.group
                   });
                   if (toner) {
                     const nextStock = Math.max(0, (toner.stock || 0) - 1);

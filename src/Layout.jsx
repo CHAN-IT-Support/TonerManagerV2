@@ -169,7 +169,6 @@ export default function Layout({ children, currentPageName }) {
               {children}
             </div>
             <footer className="text-xs text-slate-400 py-4 px-4 relative">
-              <span className="block text-center">© 2026 Wagner GROUP . All rights reserved.</span>
               <span className="block text-center text-slate-300 mt-0.5">v2.0.0</span>
               <a
                 href="mailto:basile.schoeb@wagner-group.com"

@@ -318,6 +318,39 @@ export default function Admin() {
     }
   });
 
+  const expandPositionMutation = useMutation({
+    mutationFn: ({ cabinet_id, group, direction, toner_id }) => {
+      const cells = direction === 'right'
+        ? Array.from({ length: group.rowSpan }, (_, offset) => ({ row: group.row + offset, column: group.column + group.columnSpan }))
+        : Array.from({ length: group.columnSpan }, (_, offset) => ({ row: group.row - 1, column: group.column + offset }));
+      return Promise.all(cells.map(({ row, column }) => (
+        base44.entities.ShelfPosition.create({ cabinet_id, row, column, toner_id })
+      )));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['positions'] })
+  });
+
+  const removePositionGroupMutation = useMutation({
+    mutationFn: ({ cabinet_id, group }) => {
+      const cells = group
+        ? Array.from({ length: group.rowSpan }, (_, rowOffset) =>
+          Array.from({ length: group.columnSpan }, (_, columnOffset) => ({
+            row: group.row + rowOffset,
+            column: group.column + columnOffset
+          }))
+        ).flat()
+        : [];
+      return Promise.all(cells.map(({ row, column }) => {
+        const position = positions.find(p => p.cabinet_id === cabinet_id && p.row === row && p.column === column);
+        return position ? base44.entities.ShelfPosition.delete(position.id) : null;
+      }));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['positions'] });
+      setSelectedCell(null);
+    }
+  });
+
   const createUserMutation = useMutation({
     mutationFn: (data) => base44.users.create(data),
     onSuccess: () => {
@@ -340,8 +373,8 @@ export default function Admin() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] })
   });
 
-  const handleCellClick = (row, column, position) => {
-    setSelectedCell({ row, column, position, toner_id: position?.toner_id || '', cabinet_id: selectedCabinet?.id });
+  const handleCellClick = (row, column, position, group) => {
+    setSelectedCell({ row, column, position, group, toner_id: position?.toner_id || '', cabinet_id: selectedCabinet?.id });
   };
 
   // Helper functions
@@ -745,6 +778,12 @@ export default function Admin() {
                       positions={positions.filter(p => p.cabinet_id === selectedCabinet.id)}
                       toners={toners}
                       onCellClick={handleCellClick}
+                      onExpand={(group, direction, toner) => expandPositionMutation.mutate({
+                        cabinet_id: selectedCabinet.id,
+                        group,
+                        direction,
+                        toner_id: toner.id
+                      })}
                       editable
                       cabinetName={selectedCabinet.name}
                     />
@@ -1016,13 +1055,18 @@ export default function Admin() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setSelectedCell(null)}>{t('common.cancel')}</Button>
-              <Button 
-              onClick={() => updatePositionMutation.mutate({
-                cabinet_id: selectedCell.cabinet_id,
-                row: selectedCell.row,
-                column: selectedCell.column,
-                toner_id: selectedCell.toner_id
-              })}
+              <Button
+              onClick={() => selectedCell.toner_id
+                ? updatePositionMutation.mutate({
+                  cabinet_id: selectedCell.cabinet_id,
+                  row: selectedCell.row,
+                  column: selectedCell.column,
+                  toner_id: selectedCell.toner_id
+                })
+                : removePositionGroupMutation.mutate({
+                  cabinet_id: selectedCell.cabinet_id,
+                  group: selectedCell.group
+                })}
                 disabled={updatePositionMutation.isPending}
               >
                 {updatePositionMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
