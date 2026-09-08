@@ -893,7 +893,7 @@ app.put('/api/:entity/:id', (req, res, next) => {
     const keys = Object.keys(req.body || {});
     const onlyStock = keys.length > 0 && keys.every((key) => key === 'stock');
     if (onlyStock) {
-      return requireAuth(req, res, next);
+      return next();
     }
   }
   return requireAdmin(req, res, next);

@@ -251,9 +251,7 @@ export default function Home() {
                             cabinetNameById={cabinetNameById}
                             activePosition={activePosition}
                             isHighlighted={isActive}
-                            onStockChange={isAuthenticated
-                              ? (stock) => updateTonerStock.mutate({ id: toner.id, stock })
-                              : undefined}
+                            onStockChange={(stock) => updateTonerStock.mutate({ id: toner.id, stock })}
                             onSelect={() => {
                               setActiveTonerId(toner.id);
                               setActivePosition(null);
