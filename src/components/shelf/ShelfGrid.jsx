@@ -230,8 +230,9 @@ export default function ShelfGrid({
                           )}
                         </div>
                       )}
-                    </motion.div>
-            })}
+                        </motion.div>
+                      );
+                      })}
           </div>
         </div>
       </div>
