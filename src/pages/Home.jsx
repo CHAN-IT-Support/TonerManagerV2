@@ -81,6 +81,11 @@ export default function Home() {
     return map;
   }, [locations]);
 
+  const sortedToners = [...toners].sort((a, b) => {
+    const modelComparison = (a.model || '').localeCompare(b.model || '', 'de', { sensitivity: 'base' });
+    return modelComparison || (a.name || '').localeCompare(b.name || '', 'de', { sensitivity: 'base' });
+  });
+
   const printersWithInfo = printers.map((p) => {
     const info = getPrinterDisplayInfo(p);
     const printerModel = printerModels.find((m) => m.id === p.printer_model_id);
@@ -250,7 +255,7 @@ export default function Home() {
                 setActiveTonerId(null);
                 setActivePosition(null);
               }}
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-800">
+              className="flex items-center gap-2 border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900">
 
                 <ArrowLeft className="w-4 h-4" />
                 {t('home.backToSelection')}
@@ -290,22 +295,11 @@ export default function Home() {
                           <TonerCard
                             key={toner.id}
                             toner={toner}
-                            positions={tonerPositions}
-                            cabinetNameById={cabinetNameById}
-                            activePosition={activePosition}
                             isHighlighted={isActive}
                             onStockChange={(stock) => updateTonerStock.mutate({ id: toner.id, stock })}
                             onSelect={() => {
                               setActiveTonerId(toner.id);
                               setActivePosition(null);
-                            }}
-                            onPositionSelect={(position) => {
-                              setActiveTonerId(toner.id);
-                              setActivePosition({
-                                cabinet_id: position.cabinet_id,
-                                row: position.row,
-                                column: position.column
-                              });
                             }}
                           />
                         );
@@ -324,7 +318,7 @@ export default function Home() {
                             rows={cabinet.rows || 4}
                             columns={cabinet.columns || 6}
                             positions={positions.filter(p => p.cabinet_id === cabinet.id)}
-                            toners={toners}
+                            toners={sortedToners}
                             highlightTonerIds={highlightTonerIds}
                             highlightCell={activePosition?.cabinet_id === cabinet.id ? { row: activePosition.row, column: activePosition.column } : null}
                             cabinetName={locationNameById.get(cabinet.location_id)
@@ -389,7 +383,7 @@ export default function Home() {
                   <SelectValue placeholder={t('home.selectTonerPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {toners.map((toner) => (
+                  {sortedToners.map((toner) => (
                     <SelectItem key={toner.id} value={toner.id}>
                       {toner.model} - {toner.name}
                     </SelectItem>

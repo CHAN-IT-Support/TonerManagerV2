@@ -1,17 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Minus, Package, MapPin, Plus, Trash2 } from 'lucide-react';
+import { Minus, Package, Plus, Trash2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useI18n } from '@/lib/i18n';
 
 export default function TonerCard({
   toner,
-  positions = [],
-  cabinetNameById,
-  activePosition,
   isHighlighted,
   onSelect,
-  onPositionSelect,
   onStockChange
 }) {
   const { t } = useI18n();
@@ -32,18 +28,12 @@ export default function TonerCard({
 
   if (!toner) return null;
 
-  const getPositionLabel = (position) => {
-    const cabinetName = cabinetNameById?.get(position.cabinet_id);
-    const slot = `${String.fromCharCode(65 + position.row)}${position.column + 1}`;
-    return { cabinetName, slot, label: cabinetName ? `${cabinetName} ${slot}` : slot };
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "rounded-2xl p-6 bg-gradient-to-br shadow-xl cursor-pointer",
+        "rounded-2xl p-4 bg-gradient-to-br shadow-xl cursor-pointer",
         getTonerColor(),
         isHighlighted && "ring-4 ring-green-400"
       )}
@@ -61,45 +51,13 @@ export default function TonerCard({
               {toner.color === 'resttonerbehälter' ? t('common.restToner') : t('common.toner')}
             </span>
           </div>
-          <h3 className="text-2xl font-bold mb-1">{toner.model}</h3>
+          <h3 className="text-xl font-bold mb-1">{toner.model}</h3>
           <p className="text-sm opacity-80">{toner.name}</p>
         </div>
-        
-        {positions.length > 0 && (
-          <div className="flex flex-col items-end gap-2 w-full">
-            <div className="flex flex-nowrap justify-end gap-2 max-w-full overflow-x-auto py-0.5">
-              {positions.map((position) => {
-                const { label } = getPositionLabel(position);
-                const isActive = activePosition
-                  && activePosition.cabinet_id === position.cabinet_id
-                  && activePosition.row === position.row
-                  && activePosition.column === position.column;
-                return (
-                  <button
-                    key={`${position.cabinet_id}-${position.row}-${position.column}`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onPositionSelect?.(position);
-                    }}
-                    className={cn(
-                      "text-xs px-3 py-2 rounded-xl border text-center leading-tight flex flex-col items-center gap-1 whitespace-nowrap",
-                      isActive
-                        ? "bg-white text-slate-900 border-white"
-                        : "bg-white/20 text-white border-white/30"
-                    )}
-                  >
-                    <MapPin className="w-3.5 h-3.5" />
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
 
       {toner.stock !== undefined && (
-        <div className={cn("mt-4 pt-4 border-t border-white/20", getTextColor())}>
+        <div className={cn("mt-3 pt-3 border-t border-white/20", getTextColor())}>
           <div className="flex justify-between items-center gap-4">
             <span className="text-sm opacity-80">{t('common.stock')}</span>
             <div className="flex items-center gap-4">

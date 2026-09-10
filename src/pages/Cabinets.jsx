@@ -105,6 +105,10 @@ export default function Cabinets() {
   });
 
   const locationNameById = new Map(locations.map((location) => [location.id, location.name]));
+  const sortedToners = [...toners].sort((a, b) => {
+    const modelComparison = (a.model || '').localeCompare(b.model || '', 'de', { sensitivity: 'base' });
+    return modelComparison || (a.name || '').localeCompare(b.name || '', 'de', { sensitivity: 'base' });
+  });
 
   if (loadingCabinets || loadingToners) {
     return (
@@ -140,7 +144,7 @@ export default function Cabinets() {
                   rows={cabinet.rows || 4}
                   columns={cabinet.columns || 6}
                   positions={positions.filter(p => p.cabinet_id === cabinet.id)}
-                  toners={toners}
+                  toners={sortedToners}
                   cabinetName={locationNameById.get(cabinet.location_id)
                     ? `${locationNameById.get(cabinet.location_id)} • ${cabinet.name}`
                     : cabinet.name}
