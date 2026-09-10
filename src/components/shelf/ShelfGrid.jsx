@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { ArrowRight, ArrowUp, Package, Trash2 } from 'lucide-react';
@@ -16,6 +16,7 @@ export default function ShelfGrid({
   editable = false,
   cabinetName
 }) {
+  const [hoveredCell, setHoveredCell] = useState(null);
   const getPositionData = (row, col) => {
     return positions.find(p => p.row === row && p.column === col);
   };
@@ -134,6 +135,8 @@ export default function ShelfGrid({
                     <motion.div
                       key={`${rowIndex}-${colIndex}`}
                       onClick={() => onCellClick?.(rowIndex, colIndex, position, group)}
+                      onMouseEnter={() => setHoveredCell(`${rowIndex}:${colIndex}`)}
+                      onMouseLeave={() => setHoveredCell(null)}
                       initial={{ scale: 1 }}
                       animate={{ 
                         scale: isHighlighted ? [1, 1.12, 1] : 1,
@@ -193,7 +196,10 @@ export default function ShelfGrid({
                       </span>
                       )}
                       {editable && toner && onExpand && (canExpandRight || canExpandUp) && (
-                        <div className="absolute right-0.5 top-0.5 flex gap-0.5 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100">
+                        <div className={cn(
+                          "absolute right-1 top-1 z-20 flex gap-1 transition-opacity",
+                          hoveredCell === `${rowIndex}:${colIndex}` ? "opacity-100" : "pointer-events-none opacity-0"
+                        )}>
                           {canExpandRight && (
                             <button
                               type="button"
