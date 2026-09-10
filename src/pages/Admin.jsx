@@ -330,6 +330,19 @@ export default function Admin() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['positions'] })
   });
 
+  const shrinkPositionMutation = useMutation({
+    mutationFn: ({ cabinet_id, group, direction }) => {
+      const cells = direction === 'right'
+        ? Array.from({ length: group.rowSpan }, (_, offset) => ({ row: group.row + offset, column: group.column + group.columnSpan - 1 }))
+        : Array.from({ length: group.columnSpan }, (_, offset) => ({ row: group.row, column: group.column + offset }));
+      return Promise.all(cells.map(({ row, column }) => {
+        const position = positions.find(p => p.cabinet_id === cabinet_id && p.row === row && p.column === column);
+        return position ? base44.entities.ShelfPosition.delete(position.id) : null;
+      }));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['positions'] })
+  });
+
   const removePositionGroupMutation = useMutation({
     mutationFn: ({ cabinet_id, group }) => {
       const cells = group
@@ -783,6 +796,11 @@ export default function Admin() {
                         group,
                         direction,
                         toner_id: toner.id
+                      })}
+                      onShrink={(group, direction) => shrinkPositionMutation.mutate({
+                        cabinet_id: selectedCabinet.id,
+                        group,
+                        direction
                       })}
                       editable
                       cabinetName={selectedCabinet.name}

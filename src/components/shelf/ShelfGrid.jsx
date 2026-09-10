@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
-import { ArrowRight, ArrowUp, Package, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Package, Trash2 } from 'lucide-react';
 
 export default function ShelfGrid({ 
   rows, 
@@ -13,6 +13,7 @@ export default function ShelfGrid({
   highlightCell,
   onCellClick,
   onExpand,
+  onShrink,
   editable = false,
   cabinetName
 }) {
@@ -195,12 +196,12 @@ export default function ShelfGrid({
                       {editable ? '+' : ''}
                       </span>
                       )}
-                      {editable && toner && onExpand && (canExpandRight || canExpandUp) && (
+                      {editable && toner && (onExpand || onShrink) && (canExpandRight || canExpandUp || group.columnSpan > 1 || group.rowSpan > 1) && (
                         <div className={cn(
                           "absolute right-1 top-1 z-20 flex gap-1 transition-opacity",
                           hoveredCell === `${rowIndex}:${colIndex}` ? "opacity-100" : "pointer-events-none opacity-0"
                         )}>
-                          {canExpandRight && (
+                          {canExpandRight && onExpand && (
                             <button
                               type="button"
                               title="Nach rechts erweitern"
@@ -214,7 +215,7 @@ export default function ShelfGrid({
                               <ArrowRight className="h-3 w-3" />
                             </button>
                           )}
-                          {canExpandUp && (
+                          {canExpandUp && onExpand && (
                             <button
                               type="button"
                               title="Nach oben erweitern"
@@ -226,6 +227,34 @@ export default function ShelfGrid({
                               className="rounded bg-slate-900/75 p-1 text-white hover:bg-slate-900"
                             >
                               <ArrowUp className="h-3 w-3" />
+                            </button>
+                          )}
+                          {group.columnSpan > 1 && onShrink && (
+                            <button
+                              type="button"
+                              title="Nach links verkleinern"
+                              aria-label="Nach links verkleinern"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onShrink({ row: group.row, column: group.column, rowSpan: group.rowSpan, columnSpan: group.columnSpan }, 'right', toner);
+                              }}
+                              className="rounded bg-amber-700/90 p-1 text-white hover:bg-amber-800"
+                            >
+                              <ArrowLeft className="h-3 w-3" />
+                            </button>
+                          )}
+                          {group.rowSpan > 1 && onShrink && (
+                            <button
+                              type="button"
+                              title="Nach unten verkleinern"
+                              aria-label="Nach unten verkleinern"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onShrink({ row: group.row, column: group.column, rowSpan: group.rowSpan, columnSpan: group.columnSpan }, 'up', toner);
+                              }}
+                              className="rounded bg-amber-700/90 p-1 text-white hover:bg-amber-800"
+                            >
+                              <ArrowDown className="h-3 w-3" />
                             </button>
                           )}
                         </div>
