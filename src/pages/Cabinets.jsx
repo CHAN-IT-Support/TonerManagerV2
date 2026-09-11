@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Archive, Loader2 } from 'lucide-react';
+import { Archive, Loader2, Printer } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ShelfGrid from '@/components/shelf/ShelfGrid';
+import TonerCard from '@/components/toner/TonerCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,16 @@ export default function Cabinets() {
   const { data: toners = [], isLoading: loadingToners } = useQuery({
     queryKey: ['toners'],
     queryFn: () => base44.entities.Toner.list()
+  });
+
+  const { data: printerModels = [] } = useQuery({
+    queryKey: ['printerModels'],
+    queryFn: () => base44.entities.PrinterModel.list()
+  });
+
+  const { data: printers = [] } = useQuery({
+    queryKey: ['printers'],
+    queryFn: () => base44.entities.Printer.list()
   });
 
   const updateTonerStock = useMutation({
@@ -109,6 +120,15 @@ export default function Cabinets() {
     const modelComparison = (a.model || '').localeCompare(b.model || '', 'de', { sensitivity: 'base' });
     return modelComparison || (a.name || '').localeCompare(b.name || '', 'de', { sensitivity: 'base' });
   });
+  const selectedToner = selectedCell?.position?.toner_id
+    ? toners.find((toner) => toner.id === selectedCell.position.toner_id)
+    : null;
+  const compatibleModels = selectedToner
+    ? printerModels.filter((model) => (model.toner_ids || []).includes(selectedToner.id))
+    : [];
+  const compatiblePrinters = selectedToner
+    ? printers.filter((printer) => compatibleModels.some((model) => model.id === printer.printer_model_id))
+    : [];
 
   if (loadingCabinets || loadingToners) {
     return (
@@ -160,7 +180,8 @@ export default function Cabinets() {
                   group,
                   direction
                 }) : undefined}
-                onCellClick={isAuthenticated ? (row, column, position, group) => {
+                onCellClick={(row, column, position, group) => {
+                  if (!isAuthenticated && !position?.toner_id) return;
                   setSelectedCell({
                     row,
                     column,
@@ -169,7 +190,7 @@ export default function Cabinets() {
                     cabinet_id: cabinet.id
                   });
                   setSelectedTonerId(position?.toner_id || '');
-                } : undefined}
+                }}
               />
               </div>
             ))
@@ -182,7 +203,9 @@ export default function Cabinets() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedCell?.position?.toner_id ? t('home.removeToner') : t('home.assignToner')}
+              {selectedCell?.position?.toner_id
+                ? `${selectedToner?.model || t('common.toner')} - ${selectedToner?.name || ''}`
+                : t('home.assignToner')}
             </DialogTitle>
           </DialogHeader>
           {!selectedCell?.position?.toner_id ? (
@@ -207,8 +230,38 @@ export default function Cabinets() {
               </Select>
             </div>
           ) : (
-            <div className="text-sm text-slate-600">
-              {t('home.removeConfirm')}
+            <div className="space-y-5">
+              <TonerCard
+                toner={selectedToner}
+                onStockChange={(stock) => {
+                  if (selectedToner) updateTonerStock.mutate({ id: selectedToner.id, stock });
+                }}
+              />
+              <div>
+                <h3 className="mb-2 flex items-center gap-2 font-semibold text-slate-800">
+                  <Printer className="h-5 w-5" />
+                  {t('cabinets.compatiblePrinters')}
+                </h3>
+                {compatibleModels.length === 0 ? (
+                  <p className="text-sm text-slate-500">{t('cabinets.noCompatiblePrinters')}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {compatibleModels.map((model) => {
+                      const modelPrinters = compatiblePrinters.filter((printer) => printer.printer_model_id === model.id);
+                      return (
+                        <div key={model.id} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                          <p className="font-medium text-slate-800">{model.name}</p>
+                          {modelPrinters.length > 0 && (
+                            <p className="text-sm text-slate-500">
+                              {modelPrinters.map((printer) => printer.name).join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           )}
           <DialogFooter>
@@ -232,7 +285,7 @@ export default function Cabinets() {
               >
                 {t('home.assign')}
               </Button>
-            ) : (
+            ) : isAuthenticated ? (
               <Button
                 onClick={() => {
                   const toner = toners.find(t => t.id === selectedCell.position.toner_id);
@@ -248,7 +301,7 @@ export default function Cabinets() {
               >
                 {t('home.remove')}
               </Button>
-            )}
+            ) : null}
           </DialogFooter>
         </DialogContent>
       </Dialog>

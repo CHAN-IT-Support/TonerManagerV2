@@ -62,7 +62,9 @@ const de = {
   cabinets: {
     title: 'Schränke',
     subtitle: 'Toner belegen oder entnehmen',
-    empty: 'Keine Schränke vorhanden'
+    empty: 'Keine Schränke vorhanden',
+    compatiblePrinters: 'Kompatible Drucker',
+    noCompatiblePrinters: 'Keine kompatiblen Druckermodelle hinterlegt'
   },
   tonerOverview: {
     title: 'Toner-Übersicht',
@@ -178,6 +180,7 @@ const de = {
     cyan: 'Cyan',
     magenta: 'Magenta',
     gelb: 'Gelb',
+    heftklammern: 'Heftklammern',
     resttonerbehälter: 'Resttonerbehälter'
   }
 };

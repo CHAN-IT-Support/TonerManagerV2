@@ -1366,6 +1366,7 @@ export default function Admin() {
                     <SelectItem value="cyan">{t('colors.cyan')}</SelectItem>
                     <SelectItem value="magenta">{t('colors.magenta')}</SelectItem>
                     <SelectItem value="gelb">{t('colors.gelb')}</SelectItem>
+                    <SelectItem value="heftklammern">{t('colors.heftklammern')}</SelectItem>
                     <SelectItem value="resttonerbehälter">{t('colors.resttonerbehälter')}</SelectItem>
                   </SelectContent>
                 </Select>
@@ -1436,6 +1437,7 @@ export default function Admin() {
                       <SelectItem value="cyan">{t('colors.cyan')}</SelectItem>
                       <SelectItem value="magenta">{t('colors.magenta')}</SelectItem>
                       <SelectItem value="gelb">{t('colors.gelb')}</SelectItem>
+                      <SelectItem value="heftklammern">{t('colors.heftklammern')}</SelectItem>
                       <SelectItem value="resttonerbehälter">{t('colors.resttonerbehälter')}</SelectItem>
                     </SelectContent>
                   </Select>
