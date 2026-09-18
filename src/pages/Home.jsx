@@ -290,7 +290,6 @@ export default function Home() {
             <>
                   <div className="space-y-4">
                       {selectedToners.map((toner) => {
-                        const tonerPositions = positionsByToner.get(toner.id) || [];
                         const isActive = activeTonerId === toner.id;
                         return (
                           <TonerCard
@@ -307,51 +306,6 @@ export default function Home() {
                       })}
                   </div>
 
-                  {/* Schrank-Ansicht */}
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-600 mb-3 text-center">
-                      {t('home.positionInCabinet')}
-                    </h3>
-                    <div className="space-y-4 flex flex-col items-center">
-                      {visibleCabinets.map(cabinet => (
-                        <div key={cabinet.id} className="w-full max-w-md md:max-w-lg">
-                          <ShelfGrid
-                            rows={cabinet.rows || 4}
-                            columns={cabinet.columns || 6}
-                            positions={positions.filter(p => p.cabinet_id === cabinet.id)}
-                            toners={sortedToners}
-                            highlightTonerIds={highlightTonerIds}
-                            highlightCell={activePosition?.cabinet_id === cabinet.id ? { row: activePosition.row, column: activePosition.column } : null}
-                            cabinetName={locationNameById.get(cabinet.location_id)
-                              ? `${locationNameById.get(cabinet.location_id)} • ${cabinet.name}`
-                              : cabinet.name}
-                            editable={isAuthenticated}
-                            onExpand={isAuthenticated ? (group, direction, toner) => expandPositionMutation.mutate({
-                              cabinet_id: cabinet.id,
-                              group,
-                              direction,
-                              toner_id: toner.id
-                            }) : undefined}
-                            onShrink={isAuthenticated ? (group, direction) => shrinkPositionMutation.mutate({
-                              cabinet_id: cabinet.id,
-                              group,
-                              direction
-                            }) : undefined}
-                            onCellClick={isAuthenticated ? (row, column, position, group) => {
-                              setSelectedCell({
-                                row,
-                                column,
-                                position,
-                                group,
-                                cabinet_id: cabinet.id
-                              });
-                              setSelectedTonerId(position?.toner_id || '');
-                            } : undefined}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </> :
 
             <div className="text-center py-12 bg-white rounded-2xl border border-slate-100">
@@ -360,6 +314,52 @@ export default function Home() {
                   <p className="text-sm text-slate-400 mt-1">{t('home.noTonerSubtitle')}</p>
                 </div>
             }
+
+              {/* Schrank-Ansicht */}
+              <div>
+                <h3 className="text-sm font-medium text-slate-600 mb-3 text-center">
+                  {t('home.positionInCabinet')}
+                </h3>
+                <div className="space-y-4 flex flex-col items-center">
+                  {visibleCabinets.map(cabinet => (
+                    <div key={cabinet.id} className="w-full max-w-md md:max-w-lg">
+                      <ShelfGrid
+                        rows={cabinet.rows || 4}
+                        columns={cabinet.columns || 6}
+                        positions={positions.filter(p => p.cabinet_id === cabinet.id)}
+                        toners={sortedToners}
+                        highlightTonerIds={highlightTonerIds}
+                        highlightCell={activePosition?.cabinet_id === cabinet.id ? { row: activePosition.row, column: activePosition.column } : null}
+                        cabinetName={locationNameById.get(cabinet.location_id)
+                          ? `${locationNameById.get(cabinet.location_id)} • ${cabinet.name}`
+                          : cabinet.name}
+                        editable={isAuthenticated}
+                        onExpand={isAuthenticated ? (group, direction, toner) => expandPositionMutation.mutate({
+                          cabinet_id: cabinet.id,
+                          group,
+                          direction,
+                          toner_id: toner.id
+                        }) : undefined}
+                        onShrink={isAuthenticated ? (group, direction) => shrinkPositionMutation.mutate({
+                          cabinet_id: cabinet.id,
+                          group,
+                          direction
+                        }) : undefined}
+                        onCellClick={isAuthenticated ? (row, column, position, group) => {
+                          setSelectedCell({
+                            row,
+                            column,
+                            position,
+                            group,
+                            cabinet_id: cabinet.id
+                          });
+                          setSelectedTonerId(position?.toner_id || '');
+                        } : undefined}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           }
         </AnimatePresence>
