@@ -189,9 +189,10 @@ export default function Home() {
   const highlightTonerIds = activePosition
     ? []
     : (activeTonerId ? [activeTonerId] : selectedToners.map((toner) => toner.id));
-  const visibleCabinets = selectedPrinter?.location_id
+  const cabinetsAtPrinterLocation = selectedPrinter?.location_id
     ? cabinets.filter((cabinet) => cabinet.location_id === selectedPrinter.location_id)
-    : cabinets;
+    : [];
+  const visibleCabinets = cabinetsAtPrinterLocation.length > 0 ? cabinetsAtPrinterLocation : cabinets;
 
   const isLoading = loadingPrinters || loadingToners;
 
